@@ -4,7 +4,13 @@ Funtions to find lambdas for Transient Heat Conduction
 Functions for spheres, cylinders and walls
 
 Example of call to the program:
-py 
+    -e 10 2: this means sphere biot = 10 and 2 find two zeros
+    -11: This shows Bessel functions from [0, 10], a higher value will be truncated to 11.
+    
+Codes:
+    e = sphere, max biot 100_000.
+    p = wall, max biot 100_000.
+    c = cylinder, max biot 100. Max zeros 7 else truncated
 """
 
 import sys
@@ -119,7 +125,7 @@ if __name__ == "__main__":
                 if len(args) == 4:
                     step = float(args[3])
         except ValueError:
-            print("argumentos invalidos")
+            print("invalid arguments")
         else:
             if args[0] == "p":
                 if biot < 0.7:
@@ -169,14 +175,17 @@ if __name__ == "__main__":
                     sys.exit()
                 print(zs)
             else:
-                print("geometria inexistente")
+                print("nonexistent geometry")
     else:
-        #print("Input no valida")
+        #No more than Bessel 10 so 11 is max value for bessel computing
         xs = [i/1000*35 for i in range(1000)]
         curvas = 2
         try:
             if args:
                 curvas = int(args[0])
+                if curvas>11:
+                    curvas = 11
+                    print("No more than J10 can be accurately computed")
         except ValueError:
             curvas = 2
         
