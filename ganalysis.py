@@ -130,8 +130,6 @@ def q_c(temp_profile:List[float], ts:float, radius:float, length:float, d:float,
     return Q
     
     
-    
-
 
 def q_e(temp_profile:List[float], ts:float, radius:float, d:float, cp:float)->float:
     """Analysis of heat transference for a sphere  at a given moment in time
@@ -160,7 +158,19 @@ def q_e(temp_profile:List[float], ts:float, radius:float, d:float, cp:float)->fl
         missing_q = cp*(extra_polateT-ts)*dm
         Q+=missing_q
     return Q
-    
+
+
+def temperature_g(gradient, st, at):
+    """
+    Obtain the temperature of a point based on a temperature gradient
+    gradient: (tx-at)/(st-at)
+    where:
+        at: temperature of the surroundings
+        st: starting temperature of the body
+        tx: temperature in that particualr coordinate
+    """
+    return gradient*(st-at)+at
+
 
 
 if __name__ == "__main__":

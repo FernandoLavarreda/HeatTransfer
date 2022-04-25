@@ -87,7 +87,7 @@ def multiple_newtons(fn:Callable[[float], float], dx:Callable[[float], float], x
 
 
 
-def bessel(x:float, degree:int, terms=120)->float:
+def bessel(x:float, degree:int, terms:int=120)->float:
     """Definition of Bessel function
        x: point of evaluation for bessel function. For 120 terms 35 is max value to evaluate with semi accurate results
        degree: degree of bessel function to evaluate. Value shouldn't be more than 10/11 for a regular computer
@@ -109,6 +109,47 @@ def derivar(x:float, func:Callable[[float], float], diferencial:float=1e-8)->flo
     return (func(x+diferencial)-func(x-diferencial))/(2*diferencial)
 
 
+
+def c_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
+    """Determine the lambdas for a cylinder
+    The function is limited to a biot of 100 and to a max of 7 zeros
+    biot: biot of the system
+    zeros: number of zeros desired
+    step: distance to check for the next lambda
+    """
+    if biot>100:
+        raise ValueError("Biot should be smaller than 100")
+    if zeros>7:
+        raise ValueError("No more than 7 zeros can be computed for cylinder")
+    return multiple_newtons(partial(cilindro, biot=biot), dcilindro, 2.4, zeros, step)
+    
+
+
+
+def s_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
+    """Determine the lambdas for a sphere
+    The function is limited to a biot of 1e5
+    biot: biot of the system
+    zeros: number of zeros desired
+    step: distance to check for the next lambda
+    """
+    if biot>100_000:
+        raise ValueError("Biot should be smaller than 1e5")
+    return multiple_newtons(partial(esfera, biot=biot), desfera, pi-1e-8, zeros, step)
+
+
+
+def p_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
+    """Determine the lambdas for a wall
+    The function is limited to a biot of 1e5
+    biot: biot of the system
+    zeros: number of zeros desired
+    step: distance to check for the next lambda
+    """
+    if biot>100_000:
+        raise ValueError("Biot should be smaller than 1e5")
+    return multiple_newtons(partial(pared, biot=biot), dpared, pi/2-1e-8, zeros, step)
+    
 
 
 
