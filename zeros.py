@@ -14,9 +14,9 @@ Codes:
 """
 
 import sys
-from typing import List, Callable
 from functools import partial
 import matplotlib.pyplot as plt
+from typing import List, Callable
 from math import sin, cos, tan, factorial, pi
 
 
@@ -126,7 +126,7 @@ def c_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
 
 
 
-def s_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
+def e_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
     """Determine the lambdas for a sphere
     The function is limited to a biot of 1e5
     biot: biot of the system

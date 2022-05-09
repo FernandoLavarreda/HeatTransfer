@@ -5,14 +5,15 @@ Spheres, Walls and Cylinders
 """
 
 from typing import List
-from zeros import bessel
 from math import cos, sin, exp, pi
+from zeros import bessel, c_lambdas, e_lambdas, p_lambdas, plt #Inlude graphing from matplotlib
 
 
 def biot(conv:float, length:float, cond:float)->float:
     """Determine the biot value of a system, parameter useful to determine if it is concentrated or no
        conv: convection constant of the system
        length: half the length of a wall or the entire value of the radius for a cylinder or sphere
+       alternatively the equivalent length could be used which is Volume/Area
        cond: thermal conductivity constant for the system
     """
     return conv/cond*length
@@ -172,14 +173,66 @@ def temperature_g(gradient, st, at):
     return gradient*(st-at)+at
 
 
-
-if __name__ == "__main__":
+def temp_profile_e()->List[float]:
+    """
+    
+    """
     pass
+
+
+def temp_profile_c()->List[float]:
+    """
+    
+    """
+    pass
+
+
+def temp_profile_p(*, st:float, at:float, length:float, cond:float, conv:float, time_:float, dx:float, nlambdas:int, alfa:float=None, cp:float=None, density:float=None)->List[float]:
+    """
+    Obtain temperature profile for a wall
+    st: starting temperature of the object
+    at: temperature of the surroundings
+    length: half the length of entire wall
+    cond: conductivity constant system
+    conv: convection constant of the system
+    time_: specific moment in time
+    dx: size of differentials, the 0 and border of object will always be included
+    nlambdas: number of lambdas that will be taken into consideration
+    alfa: thermal diffusivity
+        if no alfa provided:
+            cp: specific heat of the material
+            density: density of the material
+    """
+    assert not alfa == None or (not cp == None and not density == None), "Not enough parameters to define diffusivity"
+    biot_ = biot(conv, length, cond)
+    if alfa == None:
+        alfa = cond/(cp*density)
+    tau_ = tau(alfa, time_, length)
+    #Set positions where to determine temperatures
+    coordinates = [0]
+    temperatures = []
+    curr = 1
+    value = curr*dx
+    while value<length:
+        coordinates.append(value)
+        curr+=1
+        value = curr*dx
+    coordinates.append(length)
+    #---------------------------------------------
+    
+    lambdas = p_lambdas(biot_, nlambdas)
+    for coordinate in coordinates:
+        gradient = gradient_p(lambdas, coordinate, length, tau_)
+        temperatures.append(temperature_g(gradient, st, at))
+    return coordinates, temperatures
+        
+    
+    
     
 
-
-
-
+if __name__ == "__main__":
+    print(temp_profile_p(st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=8, alfa=33.9e-6))
+    
 
 
 
