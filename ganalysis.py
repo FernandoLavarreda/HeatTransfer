@@ -6,7 +6,7 @@ Spheres, Walls and Cylinders
 
 from typing import List
 from math import cos, sin, exp, pi
-from zeros import bessel, c_lambdas, e_lambdas, p_lambdas, plt #Inlude graphing from matplotlib
+from zeros import bessel, c_lambdas, e_lambdas, p_lambdas 
 
 
 def biot(conv:float, length:float, cond:float)->float:
@@ -53,7 +53,10 @@ def gradient_e(lambdas:List[float], position:float, radius:float, tau:float)->fl
     """
     accummulated_gradientes = []
     for i in lambdas:
-        accummulated_gradientes.append(4*(sin(i)-i*cos(i))/(2*i-sin(2*i))*exp(-i**2*tau)*sin(i*position/radius)/(i*position/radius))
+        if position == 0:
+            accummulated_gradientes.append(4*(sin(i)-i*cos(i))/(2*i-sin(2*i))*exp(-i**2*tau)) # Avoid zero division limit
+        else:
+            accummulated_gradientes.append(4*(sin(i)-i*cos(i))/(2*i-sin(2*i))*exp(-i**2*tau)*sin(i*position/radius)/(i*position/radius))
     return sum(accummulated_gradientes)
 
 
@@ -173,26 +176,14 @@ def temperature_g(gradient, st, at):
     return gradient*(st-at)+at
 
 
-def temp_profile_e()->List[float]:
-    """
-    
-    """
-    pass
 
-
-def temp_profile_c()->List[float]:
-    """
-    
-    """
-    pass
-
-
-def temp_profile_p(*, st:float, at:float, length:float, cond:float, conv:float, time_:float, dx:float, nlambdas:int, alfa:float=None, cp:float=None, density:float=None)->List[float]:
+def temp_profile_p(*, typ_:str, st:float, at:float, length:float, cond:float, conv:float, time_:float, dx:float, nlambdas:int, alfa:float=None, cp:float=None, density:float=None)->List[float]:
     """
     Obtain temperature profile for a wall
+    typ_: Type of object to be analyzed
     st: starting temperature of the object
     at: temperature of the surroundings
-    length: half the length of entire wall
+    length: half the length of entire wall or whole radius of cylinder or radius of sphere
     cond: conductivity constant system
     conv: convection constant of the system
     time_: specific moment in time
@@ -204,6 +195,15 @@ def temp_profile_p(*, st:float, at:float, length:float, cond:float, conv:float, 
             density: density of the material
     """
     assert not alfa == None or (not cp == None and not density == None), "Not enough parameters to define diffusivity"
+    
+    #Currently supported types of objects with formulas for gradient and lambda determination
+    typ = {
+            'e': (gradient_e, e_lambdas),
+            'c': (gradient_c, c_lambdas),
+            'p': (gradient_p, p_lambdas),
+            
+          }
+    assert typ_ in typ, "Not supported type"
     biot_ = biot(conv, length, cond)
     if alfa == None:
         alfa = cond/(cp*density)
@@ -220,9 +220,9 @@ def temp_profile_p(*, st:float, at:float, length:float, cond:float, conv:float, 
     coordinates.append(length)
     #---------------------------------------------
     
-    lambdas = p_lambdas(biot_, nlambdas)
+    lambdas = typ[typ_][1](biot_, nlambdas)
     for coordinate in coordinates:
-        gradient = gradient_p(lambdas, coordinate, length, tau_)
+        gradient = typ[typ_][0](lambdas, coordinate, length, tau_)
         temperatures.append(temperature_g(gradient, st, at))
     return coordinates, temperatures
         
@@ -231,7 +231,9 @@ def temp_profile_p(*, st:float, at:float, length:float, cond:float, conv:float, 
     
 
 if __name__ == "__main__":
-    print(temp_profile_p(st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=8, alfa=33.9e-6))
+    print(temp_profile_p(typ_='p', st=20, at=500, length=2, cond=110, conv=120, time_=800, dx=0.005, nlambdas=10, alfa=33.9e-6))
+    print(temp_profile_p(typ_='e', st=20, at=500, length=0.2, cond=110, conv=120, time_=420, dx=0.005, nlambdas=10, alfa=33.9e-6))
+    print(temp_profile_p(typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
     
 
 

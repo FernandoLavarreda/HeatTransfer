@@ -15,7 +15,6 @@ Codes:
 
 import sys
 from functools import partial
-import matplotlib.pyplot as plt
 from typing import List, Callable
 from math import sin, cos, tan, factorial, pi
 
@@ -45,7 +44,7 @@ def esfera(lamb:float, biot:float)->float:
     return 1-lamb/tan(lamb)-biot
 
 
-def desfera(lamb):
+def desfera(lamb)->float:
     """Derivative of esfera function"""
     return -1/tan(lamb)+lamb/(sin(lamb)**2)
 
@@ -160,57 +159,28 @@ if __name__ == "__main__":
         try:
             biot = float(args[1])
             zeros = 5
-            step = 3.05
             if len(args) >= 3:
                 zeros = int(args[2])
-                if len(args) == 4:
-                    step = float(args[3])
         except ValueError:
             print("invalid arguments")
         else:
             if args[0] == "p":
-                if biot < 0.7:
-                    zs = multiple_newtons(partial(pared, biot=biot), dpared, 0.2, zeros, step)
-                elif biot < 2:
-                    zs = multiple_newtons(partial(pared, biot=biot), dpared, 0.9, zeros, step)
-                elif biot < 5:
-                    zs = multiple_newtons(partial(pared, biot=biot), dpared, 1.25, zeros, step)
-                elif biot <15:
-                    zs = multiple_newtons(partial(pared, biot=biot), dpared, 1.4, zeros, step)
-                elif biot<=100_000:
-                    zs = multiple_newtons(partial(pared, biot=biot), dpared, pi/2-1e-8, zeros, pi)
+                if biot<=100_000:
+                    zs = p_lambdas(biot=biot, zeros=zeros)
                 else:
                     print("No computable")
                     sys.exit()
                 print(zs)
             elif args[0] == "c":
-                if zeros>7:
-                    zeros = 7
-                if biot < 0.1:
-                    zs = multiple_newtons(partial(cilindro, biot=biot), dcilindro, 0.2, zeros, step)
-                elif biot < 0.7:
-                    zs = multiple_newtons(partial(cilindro, biot=biot), dcilindro, 0.6, zeros, step)
-                elif biot < 5:
-                    zs = multiple_newtons(partial(cilindro, biot=biot), dcilindro, 2.2, zeros, step)
-                elif biot <= 100:
-                    zs = multiple_newtons(partial(cilindro, biot=biot), dcilindro, 2.4, zeros, step)
+                if biot <= 100:
+                    zs = c_lambdas(biot=biot, zeros=zeros)
                 else:
                     print("No computable")
                     sys.exit()
                 print(zs)
             elif args[0] == "e":
-                if biot < 0.01:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, 0.2, zeros, pi)
-                elif biot < 0.1:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, 0.2, zeros, step)
-                elif biot < 1.8:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, 1.1, zeros, step)
-                elif biot < 5:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, 2.3, zeros, step)
-                elif biot<45:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, 3, zeros, pi)
-                elif biot<=100_000:
-                    zs = multiple_newtons(partial(esfera, biot=biot), desfera, pi-1e-8, zeros, pi)
+                if biot<=100_000:
+                    zs = e_lambdas(biot=biot, zeros=zeros)
                 else:
                     print("No computable")
                     sys.exit()
@@ -219,6 +189,7 @@ if __name__ == "__main__":
                 print("nonexistent geometry")
     else:
         #No more than Bessel 10 so 11 is max value for bessel computing
+        import matplotlib.pyplot as plt
         xs = [i/1000*35 for i in range(1000)]
         curvas = 2
         try:
