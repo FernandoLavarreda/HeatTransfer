@@ -4,9 +4,10 @@ Gradient analysis for Unidemensional Transiet Heat Conduction
 Spheres, Walls and Cylinders
 """
 
-from typing import List
+from typing import List, Tuple
 from math import cos, sin, exp, pi
 from zeros import bessel, c_lambdas, e_lambdas, p_lambdas 
+
 
 
 def biot(conv:float, length:float, cond:float)->float:
@@ -17,6 +18,7 @@ def biot(conv:float, length:float, cond:float)->float:
        cond: thermal conductivity constant for the system
     """
     return conv/cond*length
+
 
 
 def tau(alfa:float, time_:float, length:float)->float:
@@ -36,11 +38,11 @@ def gradient_p(lambdas:List[float], position:float, length:float, tau:float)->fl
        length: half the total length of wall
        tau: adimensional time
     """
+    assert lambdas, "No lambdas provided"
     accummulated_gradientes = []
     for i in lambdas:
         accummulated_gradientes.append((4*sin(i))/(2*i+sin(2*i))*exp(-i**2*tau)*cos(i*position/length))
     return sum(accummulated_gradientes)
-
 
 
 
@@ -51,6 +53,7 @@ def gradient_e(lambdas:List[float], position:float, radius:float, tau:float)->fl
        radius: radius of the sphere
        tau: adimensional time
     """
+    assert lambdas, "No lambdas provided"
     accummulated_gradientes = []
     for i in lambdas:
         if position == 0:
@@ -68,10 +71,12 @@ def gradient_c(lambdas:List[float], position:float, radius:float, tau:float)->fl
        radius: radius of the cylinder
        tau: adimensional time
     """
+    assert lambdas, "No lambdas provided"
     accummulated_gradientes = []
     for i in lambdas:
         accummulated_gradientes.append(2/i*bessel(i, 1)/(bessel(i, 0)**2+bessel(i, 1)**2)*exp(-i**2*tau)*bessel(i*position/radius, 0))
     return sum(accummulated_gradientes)
+
 
 
 def q_p(temp_profile:List[float], ts:float, length:float, area:float, d:float, cp:float)->float:
@@ -102,6 +107,7 @@ def q_p(temp_profile:List[float], ts:float, length:float, area:float, d:float, c
         missing_q = cp*(extra_polateT-ts)*dm
         Q+=missing_q
     return 2*Q #Since the values are for half of the wall
+
 
 
 def q_c(temp_profile:List[float], ts:float, radius:float, length:float, d:float, cp:float)->float:
@@ -164,7 +170,8 @@ def q_e(temp_profile:List[float], ts:float, radius:float, d:float, cp:float)->fl
     return Q
 
 
-def temperature_g(gradient, st, at):
+
+def temperature_g(gradient, st, at)->float:
     """
     Obtain the temperature of a point based on a temperature gradient
     gradient: (tx-at)/(st-at)
@@ -177,25 +184,34 @@ def temperature_g(gradient, st, at):
 
 
 
-def temp_profile_p(*, typ_:str, st:float, at:float, length:float, cond:float, conv:float, time_:float, dx:float, nlambdas:int, alfa:float=None, cp:float=None, density:float=None)->List[float]:
+def temp_profile(*, typ_:str, st:float, at:float, length:float, time_:float, nlambdas:int=6, dx:float=None, cond:float=None,\
+                    conv:float=None, alfa:float=None, biot_:float=None, lambdas_:List[float]=None, coord:List[float]=None, cp:float=None, density:float=None, detailed:bool=False)->List[float]:
     """
     Obtain temperature profile for a wall
     typ_: Type of object to be analyzed
     st: starting temperature of the object
     at: temperature of the surroundings
     length: half the length of entire wall or whole radius of cylinder or radius of sphere
+    time_: specific moment in time
+    nlambdas: number of lambdas that will be taken into consideration
+    dx: size of differentials, the 0 and border of object will always be included
     cond: conductivity constant system
     conv: convection constant of the system
-    time_: specific moment in time
-    dx: size of differentials, the 0 and border of object will always be included
-    nlambdas: number of lambdas that will be taken into consideration
     alfa: thermal diffusivity
         if no alfa provided:
             cp: specific heat of the material
             density: density of the material
+    biot_: Biot of the system
+        if no biot_ provided:
+            conv and cond must be provided
+    lambdas_: list with lambdas for the system, computations are greatly reduced if added
+    coord: list of distances where to compute temperatures, if not provided dx must be provided
+    detailed: determine whether to return alfa, biot and lambdas, useful to cut time for future calculations
     """
-    assert not alfa == None or (not cp == None and not density == None), "Not enough parameters to define diffusivity"
     
+    assert not alfa == None or (not cp == None and not density == None), "Not enough parameters to define diffusivity"
+    assert not biot == None or (not conv == None and not cond == None), "Not enough parameters to define biot"
+    assert not coord == None or not dx == None, "Cant't determine coordinates to compute temperatures"
     #Currently supported types of objects with formulas for gradient and lambda determination
     typ = {
             'e': (gradient_e, e_lambdas),
@@ -203,37 +219,76 @@ def temp_profile_p(*, typ_:str, st:float, at:float, length:float, cond:float, co
             'p': (gradient_p, p_lambdas),
             
           }
-    assert typ_ in typ, "Not supported type"
-    biot_ = biot(conv, length, cond)
+    assert typ_ in typ, f"Not supported. Supported types: {' '.join(list(typ.keys()))}"
+    
     if alfa == None:
         alfa = cond/(cp*density)
+    if biot_ == None:
+        biot_sys = biot(conv, length, cond)
+    else:
+        biot_sys = biot_
     tau_ = tau(alfa, time_, length)
     #Set positions where to determine temperatures
-    coordinates = [0]
-    temperatures = []
-    curr = 1
-    value = curr*dx
-    while value<length:
-        coordinates.append(value)
-        curr+=1
+    if coord:
+        coordinates = coord
+    else:
+        coordinates = [0]
+        curr = 1
         value = curr*dx
-    coordinates.append(length)
+        while value<length:
+            coordinates.append(value)
+            curr+=1
+            value = curr*dx
+        coordinates.append(length)
+    temperatures = []
     #---------------------------------------------
     
-    lambdas = typ[typ_][1](biot_, nlambdas)
+    if lambdas_:
+        lambdas = lambdas_
+    else:
+        lambdas = typ[typ_][1](biot_sys, nlambdas)
     for coordinate in coordinates:
         gradient = typ[typ_][0](lambdas, coordinate, length, tau_)
         temperatures.append(temperature_g(gradient, st, at))
+    if detailed:
+        return alfa, lambdas, biot_sys, coordinates, temperatures
     return coordinates, temperatures
-        
+
+
+
+def temp_profiles(*, times:List[float], **profiles)->Tuple[List[float], List[List[float]]]:
+    """
+    Create multiple temperature profiles from timestamps
+    times: list with times to create profiles
+    profiles: check temp_profile arguments
     
+    return coordinates and temperature profiles for each time
+    """
+    assert times, "No timestamps provided"
+    coordinates = []
+    temperatures = []
     
-    
+    #Add firt timestamp to coordinates Compute lambas alfa and biot just once
+    alfa, lambdas, biot_, coordinates, temp = temp_profile(time_=times[0], detailed=True, **profiles)
+    temperatures.append(temp)
+    profiles["alfa"] = alfa
+    profiles["lambdas_"] = lambdas
+    profiles["biot_"] = biot
+    profiles["coord"] = coordinates
+    for stamp in times[1:]:
+        _, temperatures_ = temp_profile(time_=stamp, **profiles)
+        temperatures.append(temperatures_)
+    return coordinates, temperatures
+
+
 
 if __name__ == "__main__":
-    print(temp_profile_p(typ_='p', st=20, at=500, length=2, cond=110, conv=120, time_=800, dx=0.005, nlambdas=10, alfa=33.9e-6))
-    print(temp_profile_p(typ_='e', st=20, at=500, length=0.2, cond=110, conv=120, time_=420, dx=0.005, nlambdas=10, alfa=33.9e-6))
-    print(temp_profile_p(typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    #print(temp_profile(typ_='p', st=20, at=500, length=2, cond=110, conv=120, time_=800, dx=0.005, nlambdas=10, alfa=33.9e-6))
+    #print(temp_profile(typ_='e', st=20, at=500, length=0.2, cond=110, conv=120, time_=420, dx=0.005, nlambdas=10, alfa=33.9e-6))
+    #print(temp_profile(typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, coord=[0, 0.01, 0.02], nlambdas=7, alfa=33.9e-6))
+    print(temp_profiles(times=[i+50 for i in range(1,371)], typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
     
 
 
