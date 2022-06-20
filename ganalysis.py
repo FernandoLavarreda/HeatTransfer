@@ -8,17 +8,6 @@ from typing import List, Tuple
 from math import cos, sin, exp, pi
 from zeros import bessel, c_lambdas, e_lambdas, p_lambdas 
 
-import time
-
-def timer(func):
-    def timer(*args, **kwargs):
-        """a decorator which prints execution time of the decorated function"""
-        t1 = time.time()
-        result = func(*args, **kwargs)
-        t2 = time.time()
-        print("-- executed %s in %.4f seconds" % (func.__name__, (t2 - t1)))
-        return result
-    return timer
 
 
 def biot(conv:float, length:float, cond:float)->float:
@@ -276,37 +265,10 @@ def temp_profile(*, typ_:str, st:float, at:float, length:float, time_:float, nla
     return coordinates, temperatures
 
 
-@timer
-def temp_profiles(*, times:List[float], **profiles)->Tuple[List[float], List[List[float]]]:
-    """
-    Create multiple temperature profiles from timestamps
-    times: list with times to create profiles
-    profiles: check temp_profile arguments
-    
-    return coordinates and temperature profiles for each time
-    """
-    assert times, "No timestamps provided"
-    coordinates = []
-    temperatures = []
-    
-    #Add firt timestamp to coordinates Compute lambdas alfa and biot just once
-    alfa, lambdas, biot_, coordinates, temp = temp_profile(time_=times[0], detailed=True, **profiles)
-    temperatures.append(temp)
-    profiles["alfa"] = alfa
-    profiles["lambdas_"] = lambdas
-    profiles["biot_"] = biot
-    profiles["coord"] = coordinates
-    for stamp in times[1:]:
-        _, temperatures_ = temp_profile(time_=stamp, **profiles)
-        temperatures.append(temperatures_)
-    return coordinates, temperatures
-
-
 
 def gradient_p_coeff(lambdas:List[float], position:float, length:float)->float:
     """
        Obtain coefficients for the temperature gradient of a wall at a specific coordinate
-       private function with the aim of improving performance of temp_profiles at expense of memory
        lambdas: list of lambdas for the system
        position: distance relative to the center of the sphere
        length: half the length of the wall
@@ -321,7 +283,6 @@ def gradient_p_coeff(lambdas:List[float], position:float, length:float)->float:
 def gradient_e_coeff(lambdas:List[float], position:float, radius:float)->float:
     """
        Obtain coefficients for the temperature gradient of a sphere at a specific coordinate
-       private function with the aim of improving performance of temp_profiles at expense of memory
        lambdas: list of lambdas for the system
        position: distance relative to the center of the sphere
        radius: radius of the sphere
@@ -339,7 +300,6 @@ def gradient_e_coeff(lambdas:List[float], position:float, radius:float)->float:
 def gradient_c_coeef(lambdas:List[float], position:float, radius:float)->float:
     """
        Obtain coefficients for the temperature gradient of a cylinder at a specific coordinate
-       private function with the aim of improving performance of temp_profiles at expense of memory
        lambdas: list of lambdas for the system
        position: distance relative to the center of the sphere
        radius: radius of the sphere
@@ -365,10 +325,10 @@ def gradient_performant(coefficients:List[float], lambdas:List[float], tau:float
     return gradient
 
 
-@timer
-def temp_profiles_performant(*, times:List[float], **profiles)->Tuple[List[float], List[List[float]]]:
+
+def temp_profiles(*, times:List[float], **profiles)->Tuple[List[float], List[List[float]]]:
     """
-    Create multiple temperature profiles from timestamps faster at the expense of memory
+    Create multiple temperature profiles from timestamps caching relevant data
     times: list with times to create profiles
     profiles: check temp_profile arguments
     
@@ -406,10 +366,8 @@ if __name__ == "__main__":
     #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
     #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, coord=[0, 0.01, 0.02], nlambdas=7, alfa=33.9e-6))
     
-    #temp_profiles(times=[i+50 for i in range(1, 371)], typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
-    #temp_profiles_performant(times=[i+50 for i in range(1, 371)], typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
-    temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
-    temp_profiles_performant(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
+    #print(temp_profiles(times=[i+50 for i in range(1, 5800)], typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    #temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
     
 
 
