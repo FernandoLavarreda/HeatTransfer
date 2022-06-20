@@ -367,7 +367,7 @@ if __name__ == "__main__":
     #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, coord=[0, 0.01, 0.02], nlambdas=7, alfa=33.9e-6))
     
     #print(temp_profiles(times=[i+50 for i in range(1, 5800)], typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
-    #temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6)
+    print(temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
     
 
 

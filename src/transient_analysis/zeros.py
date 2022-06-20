@@ -67,6 +67,7 @@ def newtons(fn:Callable[[float], float], dx:Callable[[float], float], xo:float, 
     return xo, i
 
 
+
 def multiple_newtons(fn:Callable[[float], float], dx:Callable[[float], float], xo:float, number:int, step:float, tolerancia:float=0.000001, maxiter:int=10000)->List[float]:
     """Function to obtain multiple zeros from a function
        for fn, dx, xo, tolerancia check newtons documentation
@@ -122,7 +123,6 @@ def c_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
         raise ValueError("No more than 7 zeros can be computed for cylinder")
     return multiple_newtons(partial(cilindro, biot=biot), dcilindro, 2.4, zeros, step)
     
-
 
 
 def e_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:

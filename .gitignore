@@ -5,5 +5,8 @@ env/
 *.py[cod]
 *$py.class
 
+#Tests
+.pytest_cache/
+
 #Random ideas, implementations, future changes to de program
 *.ideas
