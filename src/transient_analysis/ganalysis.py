@@ -6,7 +6,7 @@ Spheres, Walls and Cylinders
 
 from typing import List, Tuple
 from math import cos, sin, exp, pi
-from zeros import bessel, c_lambdas, e_lambdas, p_lambdas 
+from .zeros import bessel, c_lambdas, e_lambdas, p_lambdas 
 
 
 
