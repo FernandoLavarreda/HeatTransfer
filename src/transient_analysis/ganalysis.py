@@ -363,11 +363,11 @@ if __name__ == "__main__":
     #print(temp_profile(typ_='p', st=20, at=500, length=2, cond=110, conv=120, time_=800, dx=0.005, nlambdas=10, alfa=33.9e-6))
     #print(temp_profile(typ_='e', st=20, at=500, length=0.2, cond=110, conv=120, time_=420, dx=0.005, nlambdas=10, alfa=33.9e-6))
     #print(temp_profile(typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
-    #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, dx=0.005, nlambdas=7, alfa=33.9e-6))
     #print(temp_profile(typ_='p', st=20, at=500, length=0.02, cond=110, conv=120, time_=420, coord=[0, 0.01, 0.02], nlambdas=7, alfa=33.9e-6))
-    
+    #print(rs := temp_profile(typ_='c', st=600, at=200, length=0.1, cond=14.9, conv=80, time_=45*60, dx=0.005, nlambdas=7, cp=477, density=7900))
     #print(temp_profiles(times=[i+50 for i in range(1, 5800)], typ_='c', st=20, at=500, length=0.02, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
-    print(temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
+    #print(temp_profiles(times=[i+50 for i in range(1,5800)], typ_='c', st=20, at=500, length=2.2, cond=110, conv=120, dx=0.005, nlambdas=7, alfa=33.9e-6))
     
 
 

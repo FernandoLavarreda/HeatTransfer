@@ -19,6 +19,12 @@ from typing import List, Callable
 from math import sin, cos, tan, factorial, pi
 
 
+# Program limitationss
+MAX_BIOTE = 100_000
+MAX_BIOTP = 100_000
+MAX_BIOTC = 100
+MAX_LAMBDASC = 7
+
 def pared(lamb:float, biot:float)->float:
     """Function that defines the relationship between the biot and lambda for a wall"""
     return lamb*tan(lamb)-biot
@@ -117,9 +123,9 @@ def c_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
     zeros: number of zeros desired
     step: distance to check for the next lambda
     """
-    if biot>100:
+    if biot>MAX_BIOTC:
         raise ValueError("Biot should be smaller than 100")
-    if zeros>7:
+    if zeros>MAX_LAMBDASC:
         raise ValueError("No more than 7 zeros can be computed for cylinder")
     return multiple_newtons(partial(cilindro, biot=biot), dcilindro, 2.4, zeros, step)
     
@@ -132,7 +138,7 @@ def e_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
     zeros: number of zeros desired
     step: distance to check for the next lambda
     """
-    if biot>100_000:
+    if biot>MAX_BIOTE:
         raise ValueError("Biot should be smaller than 1e5")
     return multiple_newtons(partial(esfera, biot=biot), desfera, pi-1e-8, zeros, step)
 
@@ -145,7 +151,7 @@ def p_lambdas(biot:float, zeros:int, step:float=pi)->List[float]:
     zeros: number of zeros desired
     step: distance to check for the next lambda
     """
-    if biot>100_000:
+    if biot>MAX_BIOTP:
         raise ValueError("Biot should be smaller than 1e5")
     return multiple_newtons(partial(pared, biot=biot), dpared, pi/2-1e-8, zeros, step)
     
