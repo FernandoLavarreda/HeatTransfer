@@ -46,7 +46,8 @@ class HeatImp(tk.Tk):
         self.main_menu = tk.Menu(self)
         self.main_menu.add_command(label="Quit", command=self.quit)
         self.config(menu=self.main_menu)
-        
+
+        self.geometry(f"+{self.winfo_screenwidth()//6}+{self.winfo_screenheight()//10}") #Center
         #Graphical user aid/inputs
         variables = ttk.LabelFrame(self, text="Inputs")
         values = []
