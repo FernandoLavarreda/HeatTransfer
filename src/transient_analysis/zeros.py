@@ -19,7 +19,7 @@ from typing import List, Callable
 from math import sin, cos, tan, factorial, pi
 
 
-# Program limitationss
+# Program limitations
 MAX_BIOTE = 100_000
 MAX_BIOTP = 100_000
 MAX_BIOTC = 100

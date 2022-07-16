@@ -10,13 +10,14 @@ def parse_action(action:str):
     Function to parse arguments and commands from string input
     """
     pattern = r"\w+"
-    arguments = r"-\w+\s+((\d+\.{1}\d+)|(\w+))"
+    arguments = r"-\w+\s+((\d+\.{0,1}\d*)|(\w+))"
     
     match = re.search(pattern, action)
-    match_args = re.finditer(arguments, action)
     
     if match == None:
         raise ValueError("Could not find an action to excecute")
+    
+    match_args = re.finditer(arguments, action[match.end()-1:])
     
     parsed = {
             'action': match.group(),
@@ -24,8 +25,8 @@ def parse_action(action:str):
             }
     
     option = r"-\w+"
-    number = r" \d+\.{0,1}\d+"
-    string = r" [a-z_A-Z]+"
+    number = r" \d+\.{0,1}\d*"
+    string = r" [a-z_A-Z0-9]+"
     if not match_args == None:
         for m in match_args:
             opt_val = m.group()
@@ -59,7 +60,7 @@ class Command(ttk.Frame):
         
     
     def request(self, *args):
-        print(self.ins.get())
+        print(parse_action(self.ins.get()))
     
     
         
