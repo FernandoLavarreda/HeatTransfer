@@ -4,6 +4,7 @@
 from typing import Tuple, List
 
 from commands import Command
+from inputs import read_float, read_int, read_list, read_linspace, mapping
 import tkinter as tk
 import tkinter.ttk as ttk
 from matplotlib.axes import Axes
@@ -62,9 +63,9 @@ class Graphics():
 
 class HeatImp(tk.Tk):
     
-    inputs = ["Biot", "Starting temperature", "Temperature of Surroundings", "Dimension", "Conductivity Constant", "Convection Constant", \
+    inputs = ["Biot", "Starting temperature", "Temperature of Surroundings", "Size", "Conductivity Constant", "Convection Constant", \
               "Specific Heat", "Density", "Diffusivity", "time", "lambdas", "dx", "coordinates"]
-    
+    parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int), (read_int, read_float), (read_int, read_float, read_linspace, read_list)]
     def __init__(self):
         super().__init__()
         self.title("Heat Transient Anlysis")
