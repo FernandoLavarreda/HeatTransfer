@@ -11,7 +11,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.pyplot import tight_layout
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from functools import partial
 import time
 import math
 
@@ -42,6 +42,7 @@ class Graphics():
     
     
     def make_animation(self, sequence:Tuple[List[List[float]], List[List[float]]], *, time_out:float=0):
+        self.clear()
         line = self.axis.plot(sequence[0][0], sequence[1][0])[0]
         self.render()
         for frame in range(len(sequence[0])):
@@ -65,29 +66,30 @@ class HeatImp(tk.Tk):
     
     inputs = ["Biot", "Starting temperature", "Temperature of Surroundings", "Size", "Conductivity Constant", "Convection Constant", \
               "Specific Heat", "Density", "Diffusivity", "time", "lambdas", "dx", "coordinates"]
-    parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int), (read_int, read_float), (read_int, read_float, read_linspace, read_list)]
-    def __init__(self):
+    parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int,), (read_int, read_float), (read_int, read_float, read_linspace, read_list)]
+    can_be_none = [False, False, False, False, True, True, True, True, True, False, False, True, True]
+    def __init__(self, actions:dict):
         super().__init__()
         self.title("Heat Transient Anlysis")
         self.main_menu = tk.Menu(self)
         self.main_menu.add_command(label="Quit", command=self.quit)
-        self.main_menu.add_command(label="Run", command=self.do)
+        #self.main_menu.add_command(label="Run", command=self.do)
         self.config(menu=self.main_menu)
         
         self.geometry(f"+{self.winfo_screenwidth()//6}+{self.winfo_screenheight()//10}") #Center
         #Graphical user aid/inputs
         variables = ttk.LabelFrame(self, text="Inputs")
-        values = []
+        self.values = []
         crow = 0
         for input_ in self.inputs:
             ttk.Label(variables, text=input_).grid(row=crow*2, sticky=tk.NE+tk.SW)
             val = tk.StringVar()
-            values.append(val)
+            self.values.append(val)
             ttk.Entry(variables, textvariable=val).grid(row=crow*2+1)
             crow+=1
         #--------------------------
         #Work with power user functionalities
-        self.commands = Command(master=self)
+        self.commands = Command(master=self, actions=actions)
         
         
         
@@ -97,25 +99,45 @@ class HeatImp(tk.Tk):
         #Add widgets to window
         variables.grid(row=0, column=4, rowspan=len(self.inputs)*2, sticky=tk.NE+tk.SW)
         self.commands.grid(row=6, column=0, columnspan=5, rowspan=2, sticky=tk.NE+tk.SW)
-        self.graphics = Graphics(self, size=(8, 6), row=0, column=0, columnspan=4, rowspan=5, dpi=100, title="Ole")
+        self.graphics = Graphics(self, size=(8, 6), row=0, column=0, columnspan=4, rowspan=5, dpi=100, title="Transient Analysis Simulation")
         self.resizable(False, False)
+    
+    
+    def get_command(self, *args)->Command:
+        return self.commands    
+    
     
     def do(self, *args):
         self.graphics.moving()
-    
-    
-    def do2(self, *args):
-        pass
     
     
     def quit(self, *args):
         self.destroy()
     
     
-
-
+    def get_parse_args(self):
+        identified_values = []
+        for input_ in range(len(HeatImp.inputs)):
+            counter = 1
+            for parse_in in HeatImp.parse_inputs[input_]:
+                try:
+                    parse = parse_in(self.values[input_].get())
+                except ValueError:
+                    if counter<len(HeatImp.parse_inputs[input_]):
+                        pass
+                    elif HeatImp.can_be_none[input_]:
+                        identified_values.append(None)
+                    elif counter >= len(HeatImp.parse_inputs[input_]):
+                        raise ValueError("Couldn't interpret "+HeatImp.inputs[input_])
+                else:
+                    identified_values.append(parse)
+                    break
+                counter +=1
+        return identified_values
+    
 
 
 if __name__ == "__main__":
-    app = HeatImp()
+    app = HeatImp(actions={"do":print})
+    app.get_command().add_action("foo", app.get_parse_args)
     app.mainloop()

@@ -1,8 +1,8 @@
 import re
 import tkinter as tk
 import tkinter.ttk as ttk
-
-
+from typing import Callable
+import traceback
 
 
 def parse_action(action:str):
@@ -43,13 +43,16 @@ def parse_action(action:str):
 
 class Command(ttk.Frame):
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, actions:dict, *args, **kwargs):
+        """
+        For actions provide a dictionary with str as keys for commands and functions/callables for actions to perform
+        """
         super().__init__(*args, **kwargs)
         self.out = tk.StringVar()
         self.ins = tk.StringVar()
         self.commands = ttk.Entry(master=self, textvariable=self.ins)
         self.output = ttk.Label(master=self, textvariable=self.out)
-        
+        self.actions = actions
         
         
         self.commands.bind("<Return>", self.request)
@@ -60,9 +63,25 @@ class Command(ttk.Frame):
         
     
     def request(self, *args):
-        print(parse_action(self.ins.get()))
+        self.out.set("")
+        interpreted = parse_action(self.ins.get())
+        if interpreted["action"] in self.actions:
+            try:
+                if len(interpreted["args"]):
+                    self.actions[interpreted["action"]](**interpreted["args"])
+                else:
+                    self.actions[interpreted["action"]]()
+            except TypeError as e:
+                arg = re.search("'.+'", str(e)).group()
+                self.out.set("Not a valid argument ("+arg+") for command: "+interpreted["action"])
+            except ValueError as f:
+                self.out.set(f)
+        else:
+            self.out.set("Command not recognized")
     
     
+    def add_action(self, command:str, action:Callable):
+        self.actions[command] = action    
         
     
     
