@@ -4,7 +4,6 @@ import tkinter.ttk as ttk
 from typing import Callable
 import traceback
 
-
 def parse_action(action:str):
     """
     Function to parse arguments and commands from string input
@@ -76,6 +75,8 @@ class Command(ttk.Frame):
                 self.out.set("Not a valid argument ("+arg+") for command: "+interpreted["action"])
             except ValueError as f:
                 self.out.set(f)
+            except AssertionError as fe:
+                self.out.set(fe)
         else:
             self.out.set("Command not recognized")
     

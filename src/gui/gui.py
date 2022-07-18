@@ -3,8 +3,8 @@
 
 from typing import Tuple, List
 
-from commands import Command
-from inputs import read_float, read_int, read_list, read_linspace, mapping
+from .commands import Command
+from .inputs import read_float, read_int, read_list, read_linspace, mapping
 import tkinter as tk
 import tkinter.ttk as ttk
 from matplotlib.axes import Axes
@@ -42,7 +42,6 @@ class Graphics():
     
     
     def make_animation(self, sequence:Tuple[List[List[float]], List[List[float]]], *, time_out:float=0):
-        self.clear()
         line = self.axis.plot(sequence[0][0], sequence[1][0])[0]
         self.render()
         for frame in range(len(sequence[0])):
@@ -51,13 +50,17 @@ class Graphics():
             self.render()
     
     
+    def static_drawing(self, sequence:Tuple[List[float], List[float]]):
+        self.axis.plot(sequence[0], sequence[1])
+        self.render()
+    
+    
     def moving(self):
         self.set_lims([-1.2*4/3, 1.2*4/3], [-1.2, 1.2])
         xs = [[0, math.cos(i/1_000*2*math.pi)] for i in range(1_000)]
         ys = [[0, math.sin(i/1_000*2*math.pi)] for i in range(1_000)]
         self.make_animation([xs, ys], time_out=0)
-            
-            
+    
     
     
 
@@ -66,8 +69,8 @@ class HeatImp(tk.Tk):
     
     inputs = ["Biot", "Starting temperature", "Temperature of Surroundings", "Size", "Conductivity Constant", "Convection Constant", \
               "Specific Heat", "Density", "Diffusivity", "time", "lambdas", "dx", "coordinates"]
-    parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int,), (read_int, read_float), (read_int, read_float, read_linspace, read_list)]
-    can_be_none = [False, False, False, False, True, True, True, True, True, False, False, True, True]
+    parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int,), (read_int, read_float), (read_linspace, read_list)]
+    can_be_none = [True, False, False, False, True, True, True, True, True, False, False, True, True]
     def __init__(self, actions:dict):
         super().__init__()
         self.title("Heat Transient Anlysis")
@@ -104,7 +107,11 @@ class HeatImp(tk.Tk):
     
     
     def get_command(self, *args)->Command:
-        return self.commands    
+        return self.commands
+        
+    
+    def get_graphics(self, *args)->Graphics:
+        return self.graphics
     
     
     def do(self, *args):
