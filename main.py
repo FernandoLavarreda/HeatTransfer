@@ -5,6 +5,7 @@ Spheres, Walls and Cylinders
 """
 
 from gui import gui
+from controller import controls
 from transient_analysis import ganalysis
 from functools import partial
 
@@ -12,7 +13,9 @@ from functools import partial
 
 COMS = ["biot_", "st", "at", "length", "cond", "conv", "cp", "density", "alfa", "time_", "nlambdas", "dx", "coord"]
 
-def main_(typ_:str, ui:gui.HeatImp)->None:
+
+
+def main_(typ_:str, ui:gui.HeatImp, symmetry=False)->None:
     values = ui.get_parse_args()
     kwargs = {COMS[i]:values[i] for i in range(len(COMS))}
     if type(kwargs["time_"]) == list:
@@ -20,13 +23,27 @@ def main_(typ_:str, ui:gui.HeatImp)->None:
         del kwargs["time_"]
         ui.get_graphics().clear()
         est = ganalysis.temp_profiles(typ_=typ_, **kwargs)
-        xs = [est[0] for i in range(len(est[1]))]
-        ui.get_graphics().set_lims(xlims=[0, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
-        ui.get_graphics().make_animation([xs, est[1]])
+        if symmetry:
+            xs = [controls.symmetry(est[0])+est[0] for i in range(len(est[1]))]
+            symmetry_y = controls.msymmetry(est[1], factor=1)
+            ys = [symmetry_y[i]+est[1][i] for i in range(len(est[1]))]
+            ui.get_graphics().set_lims(xlims=[kwargs["length"]*-1, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
+            ui.get_graphics().make_animation([xs, ys])
+        else:
+            xs = [est[0] for i in range(len(est[1]))]
+            ui.get_graphics().set_lims(xlims=[0, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
+            ui.get_graphics().make_animation([xs, est[1]])
     else:
-        est = ganalysis.temp_profile(typ_=typ_, **kwargs)
-        ui.get_graphics().clear()
-        ui.get_graphics().static_drawing(est)
+        if symmetry:
+            est = ganalysis.temp_profile(typ_=typ_, **kwargs)
+            ui.get_graphics().clear()
+            xs = controls.symmetry(est[0])+est[0]
+            ys = controls.symmetry(est[1], factor=1)+est[1]
+            ui.get_graphics().static_drawing([xs, ys])
+        else:
+            est = ganalysis.temp_profile(typ_=typ_, **kwargs)
+            ui.get_graphics().clear()
+            ui.get_graphics().static_drawing(est)
 
 
 
