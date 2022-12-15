@@ -15,7 +15,7 @@ COMS = ["biot_", "st", "at", "length", "cond", "conv", "cp", "density", "alfa", 
 
 
 
-def main_(typ_:str, ui:gui.HeatImp, symmetry=False)->None:
+def main_(typ_:str, ui:gui.HeatImp, sym=False)->None:
     values = ui.get_parse_args()
     kwargs = {COMS[i]:values[i] for i in range(len(COMS))}
     if type(kwargs["time_"]) == list:
@@ -23,7 +23,7 @@ def main_(typ_:str, ui:gui.HeatImp, symmetry=False)->None:
         del kwargs["time_"]
         ui.get_graphics().clear()
         est = ganalysis.temp_profiles(typ_=typ_, **kwargs)
-        if symmetry:
+        if sym:
             xs = [controls.symmetry(est[0])+est[0] for i in range(len(est[1]))]
             symmetry_y = controls.msymmetry(est[1], factor=1)
             ys = [symmetry_y[i]+est[1][i] for i in range(len(est[1]))]
@@ -34,7 +34,7 @@ def main_(typ_:str, ui:gui.HeatImp, symmetry=False)->None:
             ui.get_graphics().set_lims(xlims=[0, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
             ui.get_graphics().make_animation([xs, est[1]])
     else:
-        if symmetry:
+        if sym:
             est = ganalysis.temp_profile(typ_=typ_, **kwargs)
             ui.get_graphics().clear()
             xs = controls.symmetry(est[0])+est[0]
@@ -50,8 +50,11 @@ def main_(typ_:str, ui:gui.HeatImp, symmetry=False)->None:
 
 if __name__ == "__main__":
     app = gui.HeatImp(actions={})
+    app.iconbitmap(__file__.replace("main.py", "icon/icon.ico"))
     main = partial(main_, ui=app)
     app.get_command().add_action("run", main)
+    app.get_command().add_action("q", app.destroy)
+    app.get_command().add_action("quit", app.destroy)
     app.mainloop()
     
 
