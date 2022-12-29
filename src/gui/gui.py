@@ -3,17 +3,18 @@
 
 from typing import Tuple, List
 
-from .commands import Command
-from .inputs import read_float, read_int, read_list, read_linspace, mapping
+import time
+import math
 import tkinter as tk
 import tkinter.ttk as ttk
+from functools import partial
+from .commands import Command
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.pyplot import tight_layout
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from functools import partial
-import time
-import math
+from .inputs import read_float, read_int, read_list, read_linspace, mapping
+
 
 class Graphics():
     
@@ -71,6 +72,7 @@ class HeatImp(tk.Tk):
               "Specific Heat", "Density", "Diffusivity", "time", "lambdas", "dx", "coordinates"]
     parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int,), (read_int, read_float), (read_linspace, read_list)]
     can_be_none = [True, False, False, False, True, True, True, True, True, False, False, True, True]
+    units = [(), ("C", "F"), ("C", "F"), ("m", "cm", "mm", "in"), (), (), (), (), (), (), (), (), ()]
     def __init__(self, actions:dict):
         super().__init__()
         self.title("Heat Transient Anlysis")
@@ -83,12 +85,16 @@ class HeatImp(tk.Tk):
         #Graphical user aid/inputs
         variables = ttk.LabelFrame(self, text="Inputs")
         self.values = []
+        self.entries = []
         crow = 0
         for input_ in self.inputs:
             ttk.Label(variables, text=input_).grid(row=crow*2, sticky=tk.NE+tk.SW)
             val = tk.StringVar()
             self.values.append(val)
-            ttk.Entry(variables, textvariable=val).grid(row=crow*2+1)
+            entry = ttk.Entry(variables, textvariable=val)
+            entry.grid(row=crow*2+1, columnspan=1, sticky=tk.NE+tk.SW)
+            self.entries.append(entry)
+            #ttk.Combobox(variables, values=HeatImp.units[crow], state='readonly', width=4).grid(row=crow*2+1, column=2, sticky=tk.NE+tk.SW)
             crow+=1
         #--------------------------
         #Work with power user functionalities
@@ -98,7 +104,17 @@ class HeatImp(tk.Tk):
         
         #--------------------------
         
+        #Special bindings
+        self.bind("<Alt-Up>", self.commands.focus)
+        remainders = ["a", "s", "d", "f"]
+        for i in range(len(HeatImp.inputs)):
+            if i+1 > 9:
+                #self.bind(f"Alt-{i}", self.entries[i].focus_set)
+                self.bind(f"<Alt-{remainders[i-9]}>", self.focus)
+            else:
+                self.bind(f"<Alt-KeyPress-{i+1}>", self.focus)
         
+        #------------------------------
         #Add widgets to window
         variables.grid(row=0, column=4, rowspan=len(self.inputs)*2, sticky=tk.NE+tk.SW)
         self.commands.grid(row=6, column=0, columnspan=5, rowspan=2, sticky=tk.NE+tk.SW)
@@ -142,6 +158,14 @@ class HeatImp(tk.Tk):
                 counter +=1
         return identified_values
     
+    
+    def focus(self, entry:int, *args):
+        remainders = ["a", "s", "d", "f"]
+        if entry.char in remainders:
+            loc = remainders.index(entry.char)
+            self.entries[loc+9].focus_set()
+        else:
+            self.entries[int(entry.char)-1].focus_set()
 
 
 if __name__ == "__main__":

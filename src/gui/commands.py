@@ -82,8 +82,11 @@ class Command(ttk.Frame):
     
     
     def add_action(self, command:str, action:Callable):
-        self.actions[command] = action    
-        
+        self.actions[command] = action
+    
+    
+    def focus(self, *args):
+        self.commands.focus_set()
     
     
     
