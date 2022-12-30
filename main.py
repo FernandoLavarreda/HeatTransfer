@@ -4,6 +4,7 @@ Gradient analysis for Unidemensional Transiet Heat Conduction App
 Spheres, Walls and Cylinders
 """
 
+import webbrowser
 from gui import gui
 from controller import controls
 from transient_analysis import ganalysis
@@ -15,37 +16,46 @@ COMS = ["biot_", "st", "at", "length", "cond", "conv", "cp", "density", "alfa", 
 
 
 
-def main_(typ_:str, ui:gui.HeatImp, sym=False)->None:
+def main_(typ_:str, ui:gui.HeatImp, sym:bool=False, report:bool=False)->None:
     values = ui.get_parse_args()
     kwargs = {COMS[i]:values[i] for i in range(len(COMS))}
+    if not report:
+        coordinates = 0
+        temperatures = 1
+    else:
+        coordinates = 3
+        temperatures = 4
     if type(kwargs["time_"]) == list:
         kwargs["times"] = kwargs["time_"]
         del kwargs["time_"]
         ui.get_graphics().clear()
-        est = ganalysis.temp_profiles(typ_=typ_, **kwargs)
+        est = ganalysis.temp_profiles(typ_=typ_, detailed=report, **kwargs)
         if sym:
-            xs = [controls.symmetry(est[0])+est[0] for i in range(len(est[1]))]
-            symmetry_y = controls.msymmetry(est[1], factor=1)
-            ys = [symmetry_y[i]+est[1][i] for i in range(len(est[1]))]
+            xs = [controls.symmetry(est[coordinates])+est[coordinates] for i in range(len(est[temperatures]))]
+            symmetry_y = controls.msymmetry(est[temperatures], factor=1)
+            ys = [symmetry_y[i]+est[temperatures][i] for i in range(len(est[temperatures]))]
             ui.get_graphics().set_lims(xlims=[kwargs["length"]*-1, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
             ui.get_graphics().make_animation([xs, ys])
         else:
-            xs = [est[0] for i in range(len(est[1]))]
+            xs = [est[coordinates] for i in range(len(est[temperatures]))]
             ui.get_graphics().set_lims(xlims=[0, kwargs["length"]], ylims=[min([kwargs["st"], kwargs["at"]]), max([kwargs["st"], kwargs["at"]])])
-            ui.get_graphics().make_animation([xs, est[1]])
+            ui.get_graphics().make_animation([xs, est[temperatures]])
     else:
         if sym:
-            est = ganalysis.temp_profile(typ_=typ_, **kwargs)
+            est = ganalysis.temp_profile(typ_=typ_, detailed=report, **kwargs)
             ui.get_graphics().clear()
-            xs = controls.symmetry(est[0])+est[0]
-            ys = controls.symmetry(est[1], factor=1)+est[1]
+            xs = controls.symmetry(est[coordinates])+est[coordinates]
+            ys = controls.symmetry(est[temperatures], factor=1)+est[temperatures]
             ui.get_graphics().static_drawing([xs, ys])
         else:
-            est = ganalysis.temp_profile(typ_=typ_, **kwargs)
+            est = ganalysis.temp_profile(typ_=typ_, detailed=report, **kwargs)
             ui.get_graphics().clear()
-            ui.get_graphics().static_drawing(est)
-
-
+            ui.get_graphics().static_drawing([est[coordinates], est[temperatures]])
+    if report:
+        content = controls.make_report({"Thermal Diffusivity":est[0], "Biot":est[2]}, est[1], est[coordinates], est[temperatures])
+        if sv := ui.save_file(content, "Save Report", ".html"):
+            webbrowser.open(sv)
+        
 
 
 if __name__ == "__main__":

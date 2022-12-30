@@ -72,10 +72,13 @@ class Command(ttk.Frame):
                     self.actions[interpreted["action"]]()
             except TypeError as e:
                 arg = re.search("'.+'", str(e)).group()
+                print(e)
                 self.out.set("Not a valid argument ("+arg+") for command: "+interpreted["action"])
             except ValueError as f:
+                print(f)
                 self.out.set(f)
             except AssertionError as fe:
+                print(fe)
                 self.out.set(fe)
         else:
             self.out.set("Command not recognized")

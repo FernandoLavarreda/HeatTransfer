@@ -326,7 +326,7 @@ def gradient_performant(coefficients:List[float], lambdas:List[float], tau:float
 
 
 
-def temp_profiles(*, times:List[float], **profiles)->Tuple[List[float], List[List[float]]]:
+def temp_profiles(*, times:List[float], detailed:bool=False, **profiles)->Tuple[List[float], List[List[float]]]:
     """
     Create multiple temperature profiles from timestamps caching relevant data
     times: list with times to create profiles
@@ -355,6 +355,8 @@ def temp_profiles(*, times:List[float], **profiles)->Tuple[List[float], List[Lis
     for stamp in times[1:]:
         _, temperatures_ = temp_profile(time_=stamp, **profiles)
         temperatures.append(temperatures_)
+    if detailed:
+        return alfa, lambdas, biot_, coordinates, temperatures
     return coordinates, temperatures
 
 
