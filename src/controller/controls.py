@@ -22,7 +22,7 @@ def msymmetry(xs:List[List[float]], factor:float=-1):
     return symmetrics
 
 
-def make_report(features:dict, lambdas:List[float], coordinates:List[float], temperatures:Union[List[float], List[List[float]]]):
+def make_report(features:dict, lambdas:List[float], coordinates:List[float], temperatures:Union[List[float], List[List[float]]], time_labels:Union[List[float], float]):
     """Create html report for users
         features: mapping from variable (str) to its value"""
     file = "<html><head><title>Report</title>"
@@ -118,11 +118,15 @@ def make_report(features:dict, lambdas:List[float], coordinates:List[float], tem
     
     if type(temperatures[0]) != list:
         file+="<br><h2>Temperature Profile</h2><hr>"
-        file+=make_table({coordinates[i]:temperatures[i] for i in range(len(coordinates))}, class_="center1", header="<tr><th class=see>Coordinate</th><th class=see>Temperature</th></tr>")
+        file+=make_table({coordinates[i]:temperatures[i] for i in range(len(coordinates))}, class_="center1", header=f"<tr><th class=see>Coordinate</th><th class=see>Temperature at Time:{time_labels}</th></tr>")
     else:
         file+="<br><h2>Temperature Profiles</h2><hr>"
         file+="<div style=\"overflow-x:auto;\">"
-        file+=make_table2({coordinates[i]:temperatures[i] for i in range(len(coordinates))}, class_="center2")
+        coord_temp_mapping = [[temperature[coordinate] for temperature in temperatures] for coordinate in range(len(coordinates))]
+        
+        labels = ''.join([f"<th class=see>{time_label}</th>" for time_label in time_labels])
+        file+=make_table2({coordinates[i]:coord_temp_mapping[i] for i in range(len(coordinates))}, class_="center2", header="<tr><th class=see>Coordinate|Timestamps</th>"+labels+"</tr>")
+        
         file+="</div>"
     file+="</body></html>"
     return file

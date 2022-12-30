@@ -9,7 +9,7 @@ env/
 
 #Tests
 .pytest_cache/
-.html
+*.html
 
 #Random ideas, implementations, future changes to de program
 *.ideas
