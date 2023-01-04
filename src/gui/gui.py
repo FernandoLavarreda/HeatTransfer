@@ -96,9 +96,12 @@ class HeatImp(tk.Tk):
             entry = ttk.Entry(variables, textvariable=val)
             entry.grid(row=crow*2+1, columnspan=1, sticky=tk.NE+tk.SW)
             self.entries.append(entry)
-            combo = ttk.Combobox(variables, values=HeatImp.units[crow], state='readonly', width=4)
-            self.comboboxes.append(combo)
-            combo.grid(row=crow*2+1, column=2, sticky=tk.NE+tk.SW)
+            if HeatImp.units[crow]:
+                combo = ttk.Combobox(variables, values=HeatImp.units[crow], state='readonly', width=4)
+                self.comboboxes.append(combo)
+                combo.grid(row=crow*2+1, column=2, sticky=tk.NE+tk.SW)
+            else:
+                self.comboboxes.append(None)
             crow+=1
         #--------------------------
         #Work with power user functionalities
@@ -119,8 +122,11 @@ class HeatImp(tk.Tk):
                 self.bind(f"<Alt-KeyPress-{i+1}>", self.focus)
             self.entries[i].bind("<Down>", self.focus)
             self.entries[i].bind("<Up>", self.focus)
-            self.entries[i].bind("<Control-KeyPress-Right>", self.focus)
-            self.comboboxes[i].bind("<Control-KeyPress-Left>", self.focus)
+            if HeatImp.units[i]:
+                self.entries[i].bind("<Control-KeyPress-Right>", self.focus)
+        for i in range(len(self.comboboxes)):
+            if self.comboboxes[i] != None:
+                self.comboboxes[i].bind("<Control-KeyPress-Left>", self.focus)
         #------------------------------
         
         #Add widgets to window
@@ -184,7 +190,8 @@ class HeatImp(tk.Tk):
                 self.cursor = len(HeatImp.inputs)-1
             self.entries[self.cursor].focus_set()
         elif entry.keysym == "Right":
-            self.comboboxes[self.cursor].focus_set()
+            if type(self.comboboxes[self.cursor]) != None:
+                self.comboboxes[self.cursor].focus_set()
         elif entry.keysym == "Left":
             self.entries[self.cursor].focus_set()
         elif entry.char:
