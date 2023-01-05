@@ -2,8 +2,8 @@
 #Fernando Lavarreda
 
 from os import startfile
-from typing import List, Union, Any
-from collections.abc import Mapping
+from typing import List, Union, Any, Mapping
+#from collections.abc import Mapping
 
 
 def symmetry(xs:List[float], factor:float=-1):

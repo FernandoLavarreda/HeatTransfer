@@ -56,7 +56,8 @@ def main_(typ_:str, ui:gui.HeatImp, sym:bool=False, report:bool=False)->None:
             content = controls.make_report({"Thermal Diffusivity":est[0], "Biot":est[2]}, est[1], est[coordinates], est[temperatures], time_labels=kwargs["times"])
         else:
             content = controls.make_report({"Thermal Diffusivity":est[0], "Biot":est[2]}, est[1], est[coordinates], est[temperatures], time_labels=kwargs["time_"])
-        if sv := ui.save_file(content, "Save Report", ".html"):
+        sv = ui.save_file(content, "Save Report", ".html")
+        if sv:
             webbrowser.open(sv)
         
 
