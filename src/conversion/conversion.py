@@ -16,8 +16,8 @@ def temp_conversion2(temperature):
 
 
 TIME = {
-    "ms": 0.001,
     "s": 1,
+    "ms": 0.001,
     "min": 60,
     "h":  3600,
     "__imperial":1,
@@ -32,9 +32,9 @@ METRIC_TEMPERATURE = {
 
 
 METRIC_DISTANCE = {
+    "m": 1,
     "mm": 0.001,
     "cm": 0.01,
-    "m": 1,
     "__imperial":0.3048,
 }
 
@@ -98,8 +98,8 @@ IMPERIAL_TEMPERATURE = {
 
 
 IMPERIAL_DISTANCE = {
-    "in": 1/12,
     "ft": 1,
+    "in": 1/12,
     "yd": 3,
     "__metric":3.28084,
 }

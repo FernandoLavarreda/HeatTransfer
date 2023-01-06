@@ -1,8 +1,9 @@
 #GUI for Transient Heat transfer Interactions
 #Fernando Lavarreda
 
-from typing import Tuple, List
+from typing import Tuple, List, Mapping, Callable
 
+import re
 import time
 import math
 import tkinter as tk
@@ -73,9 +74,12 @@ class HeatImp(tk.Tk):
               "Specific Heat", "Density", "Diffusivity", "time", "lambdas", "dx", "coordinates"]
     parse_inputs = [(read_int, read_float)]*9+[(read_int, read_float, read_linspace, read_list), (read_int,), (read_int, read_float), (read_linspace, read_list)]
     can_be_none = [True, False, False, False, True, True, True, True, True, False, False, True, True]
-    units = [(), ("C", "F"), ("C", "F"), ("m", "cm", "mm", "in"), (), (), (), (), (), (), (), (), ()]
-    def __init__(self, actions:dict):
+    units = ["", "TEMPERATURE", "TEMPERATURE", "DISTANCE", "COND", "CONV", "SP", "DENSITY", "DIFF", "TIME", "", "DISTANCE", "DISTANCE"]
+    
+    def __init__(self, actions:dict, unit_systems:Mapping[str, Tuple[Mapping[str, List[str]], Callable[[float, str, str], float]]]):
         super().__init__()
+        #Create setup for unit systems
+        self.unit_systems = unit_systems
         self.title("Heat Transient Anlysis")
         self.main_menu = tk.Menu(self)
         self.main_menu.add_command(label="Quit", command=self.quit)
@@ -97,12 +101,16 @@ class HeatImp(tk.Tk):
             entry.grid(row=crow*2+1, columnspan=1, sticky=tk.NE+tk.SW)
             self.entries.append(entry)
             if HeatImp.units[crow]:
-                combo = ttk.Combobox(variables, values=HeatImp.units[crow], state='readonly', width=4)
+                combo = ttk.Combobox(variables, values=HeatImp.units[crow], state='readonly', width=14)
                 self.comboboxes.append(combo)
                 combo.grid(row=crow*2+1, column=2, sticky=tk.NE+tk.SW)
             else:
                 self.comboboxes.append(None)
             crow+=1
+        
+        #Set comboboxes values
+        self.system_cursor = list(self.unit_systems.keys())[0]
+        self.set_system(self.system_cursor)
         #--------------------------
         #Work with power user functionalities
         self.commands = Command(master=self, actions=actions)
@@ -123,10 +131,10 @@ class HeatImp(tk.Tk):
             self.entries[i].bind("<Down>", self.focus)
             self.entries[i].bind("<Up>", self.focus)
             if HeatImp.units[i]:
-                self.entries[i].bind("<Control-KeyPress-Right>", self.focus)
+                self.entries[i].bind("<Alt-KeyPress-Right>", self.focus)
         for i in range(len(self.comboboxes)):
             if self.comboboxes[i] != None:
-                self.comboboxes[i].bind("<Control-KeyPress-Left>", self.focus)
+                self.comboboxes[i].bind("<Alt-KeyPress-Left>", self.focus)
         #------------------------------
         
         #Add widgets to window
@@ -152,6 +160,17 @@ class HeatImp(tk.Tk):
         self.destroy()
     
     
+    def set_system(self, system:str)->None:
+        """Set the unit system of the App, system is the name of the unit system to show"""
+        if system not in self.unit_systems:
+            raise ValueError("Unrecognized Unit System: "+system)
+        for index, unit in enumerate(HeatImp.units):
+            if unit:
+                self.comboboxes[index]['values'] = [key for key in self.unit_systems[system][0][unit].keys() if "__" not in key]
+                self.comboboxes[index].set(self.comboboxes[index]['values'][0])
+        self.system_cursor = system
+    
+    
     def get_parse_args(self):
         identified_values = []
         for input_ in range(len(HeatImp.inputs)):
@@ -167,9 +186,36 @@ class HeatImp(tk.Tk):
                     elif counter >= len(HeatImp.parse_inputs[input_]):
                         raise ValueError("Couldn't interpret "+HeatImp.inputs[input_])
                 else:
+                    #Once the values have been extracted successfully apply system conversion
+                    if HeatImp.units[input_]:
+                        if type(parse) == list:
+                            modified_conversion = partial(self.unit_systems[self.system_cursor][1], unit=HeatImp.units[input_], from_=self.comboboxes[input_].get())
+                            parse = list(map(modified_conversion, parse))
+                            if parse_in == read_linspace:
+                                raw_data = self.values[input_].get()
+                                match = re.match(r"(_\d+){3}", raw_data)
+                                inp = match.group()
+                                digits = ["", "", ""]
+                                st = 0
+                                for value in inp[1:]:
+                                    if value == "_":
+                                        st+=1
+                                        continue
+                                    digits[st]+=value
+                                parsed = [int(d) for d in digits]
+                                self.values[input_].set("_"+str(parse[0])+"_"+str(parsed[1])+"_"+str(parse[-1]))
+                            elif parse_in == read_list:
+                                self.values[input_].set(','.join([str(i) for i in parse]))
+                            else:
+                                #Create new representation on the ttk.Entry
+                                raise ValueError("TODO: Conversion to "+parse_in.__name__+" not defined")
+                        else:
+                            parse = self.unit_systems[self.system_cursor][1](parse, HeatImp.units[input_], self.comboboxes[input_].get())
+                            self.values[input_].set(str(parse))
+                        self.comboboxes[input_].set(list(self.unit_systems[self.system_cursor][0][HeatImp.units[input_]].keys())[0])
                     identified_values.append(parse)
                     break
-                counter +=1
+                counter+=1
         return identified_values
     
     

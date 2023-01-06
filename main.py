@@ -7,6 +7,7 @@ Spheres, Walls and Cylinders
 import webbrowser
 from gui import gui
 from controller import controls
+from conversion import conversion
 from transient_analysis import ganalysis
 from functools import partial
 
@@ -63,7 +64,13 @@ def main_(typ_:str, ui:gui.HeatImp, sym:bool=False, report:bool=False)->None:
 
 
 if __name__ == "__main__":
-    app = gui.HeatImp(actions={})
+    #Set unit systems
+    unit_systems = {
+                    "metric":(conversion.METRIC_TABLE, conversion.convert_metric),
+                    "imperial":(conversion.IMPERIAL_TABLE, conversion.convert_imperial),
+                    "mixed":({key:{unit:None for unit in list(conversion.METRIC_TABLE[key].keys())+list(conversion.IMPERIAL_TABLE[key].keys())} for key in conversion.METRIC_TABLE.keys()}, conversion.convert_metric),
+    }
+    app = gui.HeatImp(actions={}, unit_systems=unit_systems)
     app.iconbitmap(__file__.replace("main.py", "icon/icon.ico"))
     main = partial(main_, ui=app)
     app.get_command().add_action("run", main)

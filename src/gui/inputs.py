@@ -46,7 +46,7 @@ def read_linspace(in_:str)->List[float]:
     End can be smaller than start, ending value may not be included
     """
     result = []
-    match = re.search(r"(_\d+){3}", in_)
+    match = re.match(r"(_\d+){3}", in_)
     if match == None:
         raise ValueError("Not properly formatted data")
     inp = match.group()
@@ -63,7 +63,7 @@ def read_linspace(in_:str)->List[float]:
     while len(result)<parsed[1]+1:
         result.append(result[-1]+dx)
     return result
-    
+
 
 def read_list(in_:str, sep=",")->List[float]:
     """
