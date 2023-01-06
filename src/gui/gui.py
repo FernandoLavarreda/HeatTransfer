@@ -82,8 +82,14 @@ class HeatImp(tk.Tk):
         self.unit_systems = unit_systems
         self.title("Heat Transient Anlysis")
         self.main_menu = tk.Menu(self)
+        #Systems GUI
+        system_menu = tk.Menu(self.main_menu, tearoff=0)
+        for system_name in unit_systems.keys():
+            change_system = partial(self.set_system, system=system_name)
+            system_menu.add_command(label=system_name, command=change_system)
+        self.main_menu.add_cascade(label="Unit System", menu=system_menu)
+        self.main_menu.add_command(label="Docs", command=self.quit)
         self.main_menu.add_command(label="Quit", command=self.quit)
-        #self.main_menu.add_command(label="Run", command=self.do)
         self.config(menu=self.main_menu)
         
         self.geometry(f"+{self.winfo_screenwidth()//6}+{self.winfo_screenheight()//10}") #Center
@@ -203,7 +209,7 @@ class HeatImp(tk.Tk):
                                         continue
                                     digits[st]+=value
                                 parsed = [int(d) for d in digits]
-                                self.values[input_].set("_"+str(parse[0])+"_"+str(parsed[1])+"_"+str(parse[-1]))
+                                self.values[input_].set("_"+str(int(parse[0]))+"_"+str(parsed[1])+"_"+str(int(parse[-1])))
                             elif parse_in == read_list:
                                 self.values[input_].set(','.join([str(i) for i in parse]))
                             else:
