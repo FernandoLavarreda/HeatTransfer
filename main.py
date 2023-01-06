@@ -54,9 +54,12 @@ def main_(typ_:str, ui:gui.HeatImp, sym:bool=False, report:bool=False)->None:
             ui.get_graphics().static_drawing([est[coordinates], est[temperatures]])
     if report:
         if "time_" not in kwargs:
-            content = controls.make_report({"Thermal Diffusivity":est[0], "Biot":est[2]}, est[1], est[coordinates], est[temperatures], time_labels=kwargs["times"])
+            content = controls.make_report({f"Thermal Diffusivity ({list(ui.get_system()[0]['DIFF'].keys())[0]})":est[0], "Biot":est[2]}, est[1],\
+                                            est[coordinates], est[temperatures], time_labels=kwargs["times"], units=ui.get_system()[0])
         else:
-            content = controls.make_report({"Thermal Diffusivity":est[0], "Biot":est[2]}, est[1], est[coordinates], est[temperatures], time_labels=kwargs["time_"])
+            content = controls.make_report({f"Thermal Diffusivity ({list(ui.get_system()[0]['DIFF'].keys())[0]})":est[0], "Biot":est[2]}, est[1],\
+                                            est[coordinates], est[temperatures], time_labels=kwargs["time_"], units=ui.get_system()[0])
+        
         sv = ui.save_file(content, "Save Report", ".html")
         if sv:
             webbrowser.open(sv)

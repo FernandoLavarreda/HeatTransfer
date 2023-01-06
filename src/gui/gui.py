@@ -46,6 +46,8 @@ class Graphics():
     
     def make_animation(self, sequence:Tuple[List[List[float]], List[List[float]]], *, time_out:float=0):
         line = self.axis.plot(sequence[0][0], sequence[1][0])[0]
+        if len(str(self.axis.get_yticks()[0]))>4:
+            self.axis.set_yticklabels(self.axis.get_yticks(), rotation=70)
         self.render()
         for frame in range(len(sequence[0])):
             line.set_data(sequence[0][frame], sequence[1][frame])
@@ -55,6 +57,8 @@ class Graphics():
     
     def static_drawing(self, sequence:Tuple[List[float], List[float]]):
         self.axis.plot(sequence[0], sequence[1])
+        if len(str(self.axis.get_yticks()[0]))>4:
+            self.axis.set_yticklabels(self.axis.get_yticks(), rotation=70)
         self.render()
     
     
@@ -175,6 +179,10 @@ class HeatImp(tk.Tk):
                 self.comboboxes[index]['values'] = [key for key in self.unit_systems[system][0][unit].keys() if "__" not in key]
                 self.comboboxes[index].set(self.comboboxes[index]['values'][0])
         self.system_cursor = system
+    
+    
+    def get_system(self):
+        return self.unit_systems[self.system_cursor]
     
     
     def get_parse_args(self):
