@@ -11,5 +11,13 @@ env/
 .pytest_cache/
 *.html
 
+
+#Build
+build/
+dist/
+*.spec
+*.iss
+
+
 #Random ideas, implementations, future changes to de program
 *.ideas
