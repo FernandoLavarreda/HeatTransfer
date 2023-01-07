@@ -28,7 +28,7 @@ python main.py
 
 ### Windows users
 
-The program is available in the section Realeases as an installer
+The program is available in the section _**Releases**_ as an installer
 
 ## Usage
 
