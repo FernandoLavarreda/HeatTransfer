@@ -92,7 +92,8 @@ class HeatImp(tk.Tk):
             change_system = partial(self.set_system, system=system_name)
             system_menu.add_command(label=system_name, command=change_system)
         self.main_menu.add_cascade(label="Unit System", menu=system_menu)
-        self.main_menu.add_command(label="Docs", command=self.quit)
+        if 'docs' in actions:
+            self.main_menu.add_command(label="Docs", command=actions['docs'])
         self.main_menu.add_command(label="Quit", command=self.quit)
         self.config(menu=self.main_menu)
         

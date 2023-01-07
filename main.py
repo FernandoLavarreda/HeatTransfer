@@ -68,12 +68,14 @@ def main_(typ_:str, ui:gui.HeatImp, sym:bool=False, report:bool=False)->None:
 
 if __name__ == "__main__":
     #Set unit systems
+    documenttation = "https://github.com/FernandoLavarreda/HeatTransfer"
     unit_systems = {
                     "Metric":(conversion.METRIC_TABLE, conversion.convert_metric),
                     "Imperial":(conversion.IMPERIAL_TABLE, conversion.convert_imperial),
                     "Mixed":({key:{unit:None for unit in list(conversion.METRIC_TABLE[key].keys())+list(conversion.IMPERIAL_TABLE[key].keys())} for key in conversion.METRIC_TABLE.keys()}, conversion.convert_metric),
     }
-    app = gui.HeatImp(actions={}, unit_systems=unit_systems)
+    docs = partial(webbrowser.open, url=documenttation)
+    app = gui.HeatImp(actions={'docs':docs}, unit_systems=unit_systems)
     app.iconbitmap(__file__.replace("main.py", "icon/icon.ico"))
     main = partial(main_, ui=app)
     app.get_command().add_action("run", main)
