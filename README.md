@@ -1,4 +1,5 @@
 # Heat Transfer Transient Analysis
+![Tests](https://github.com/FernandoLavarreda/HeatTransfer/actions/workflows/python-app.yml/badge.svg)
 ## About:
 
 This program is designed to analyze spheres, walls and cilinders under transient heat transfer conditions. 
@@ -110,7 +111,7 @@ body.
 
 ### Shortcuts
 - <kbd>Alt</kbd>+<kbd>Up</kbd> sets focus on the command shell
-- <kbd>Alt</kbd>+<kbd>1</kbd>...<kbd>9</kbd> and <kbd>Alt</kbd>+<kbd>asdf</kbd> sets focus on the input fields
+- <kbd>Alt</kbd>+<kbd>1</kbd>...<kbd>9</kbd> and <kbd>Alt</kbd>+<kbd>asf</kbd> sets focus on the input fields
 - <kbd>Alt</kbd>+<kbd>Right</kbd> when focus is set on a field sets focus to the combobox to its right <kbd>Alt</kbd>+<kbd>Left</kbd>
 sets the focus from the combobox to the field
 - <kbd>Down</kbd> and <kbd>Up</kbd> help move focus from one field to another wrapping the cycle when at the end or at the start
