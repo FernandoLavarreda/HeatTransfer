@@ -5,8 +5,8 @@
 This program is designed to analyze spheres, walls and cilinders under transient heat transfer conditions. 
 Transient analysis aims to study the change in temperature as a function of time and position. To
 simplify the analysis, 3D bodies are anlyzed in one dimension under the assumption that there are uniform
-conditions (the conduction and convetion constant don't change) and the bodies are solid objects of
-one material, for cilinders this analysis is valid as long as the ratio L/r_o <ins>></ins> 10 [1]. 
+conditions (the conduction and convection constant don't change) and the bodies are solid objects of
+one material, for cylinders this analysis is valid as long as the ratio L/r_o <ins>></ins> 10 [1]. 
 
 The one dimensional analysis is done finding the values for the analytic solution of each body 
 as shown
@@ -14,7 +14,7 @@ as shown
 ![Image](./imgs/solutions.png)
 [1]
 
-The lambdas/eigenvalues for the equations are obtained using Newton–Raphson method [2] and for the cilinder
+The lambdas/eigenvalues for the equations are obtained using Newton–Raphson method [2] and for the cylinder
 a computation of Bessel functions was implemented [3].
 
 ## Installation
@@ -29,7 +29,7 @@ python main.py
 
 ### Windows users
 
-The program is available in the section _**Releases**_ as an installer
+The program is available in the section <a href="https://github.com/FernandoLavarreda/HeatTransfer/releases">_**Releases**_</a> as an installer
 
 ## Usage
 
@@ -39,7 +39,7 @@ Upon starting the application a window like the one shown below will appear.
 
 To get started enter data in the *Inputs* section as prompted. Not every field has to have information as long 
 as it can be computed with the rest of the information provided. For example the **Biot** can be computed using the
-length, the convection constant and the conduction constat so if this information is provided there is no need
+length, the convection constant and the conduction constant so if this information is provided there is no need
 to provide the **Biot**.
 
 ### Fields and accepted inputs:
@@ -48,14 +48,14 @@ For big and small decimal values scientific notation can be used: 33.41e6, 14.5e
 If the field accepts decimal values it also accepts integer values.
 
 - **Biot**: biot of the system. Adimensional value that indicates how energy flows through the system. Calculated
-as: (convection)(size)/(condcution). Admits a decimal value.
+as: (convection)(size)/(conduction). Admits a decimal value.
 
 - **Starting temperature**: temperature at time=0 of the system. Admits a decimal value.
 
 - **Temperature of Surroundings**: temperature of the environment surrounding the body. Does not change through time.
 Admits a decimal value.
 
-- **Size**: for walls half the length of the wall (thickness). For cilinders and spheres it refers to the radius
+- **Size**: for walls half the length of the wall (thickness). For cylinders and spheres it refers to the radius
 (half the diameter to use as mnemonic). Admits a decimal value.
 
 - **Conductivity Constant**: value that indicates how heat flows through the solid. Admits a decimal value.
@@ -63,7 +63,7 @@ Admits a decimal value.
 - **Convection Constant**: value that indicates how heat flows between the solid and the surroundings.
 Admits a decimal value.
 
-- **Specific Heat**: value that indicates the amoun of energy required to increase the temperature of a given mass of the
+- **Specific Heat**: value that indicates the amount of energy required to increase the temperature of a given mass of the
 material that constitutes the body. Admits a decimal value.
 
 - **Density**: value that indicates the mass per volume of the material. Admits a decimal value.
@@ -80,7 +80,7 @@ timestamp selected will present the temperature profile.
 - **lambdas**: indicates the number of eigenvalues to use to solve for the temperatures. A higher number of lambdas lead to 
 more precise results which are particularly important when the timestamp is close to cero and when the system has a high Biot
 and/or high diffusivity. Accepts an integer value. More lambdas require more time to compute. The program has an upper limit
-of **7** lambdas for cilinders and **100,000** for walls and spheres.
+of **7** lambdas for cylinders and **100,000** for walls and spheres.
 
 - **dx**: helps to determine the positions for wich the temperature will be calculated
 (from the origin [position 0] until the size with as many differentials as can be fit in between). Accepts a decimal value. 
@@ -95,12 +95,12 @@ The results will also be presented in this standard units. E.g., if the Mixed sy
 ### Running the program
 
 To run the program acces the command shell at the bottom of the window and type **run -typ_  _x_** where _'x'_ is replaced by:
-c, p, s. c indicates cilinder, s sphere and p wall.
+c, p, s. c indicates cylinder, s sphere and p wall.
 
 #### Additional arguments
 
 -sym (any character): will create a reflection of the profile when running the simulation. Since the analysis is 
-done from the center of the sphere, wall or a cilinder to its surface this argument allows for the visualization of the entire
+done from the center of the sphere, wall or a cylinder to its surface this argument allows for the visualization of the entire
 body.
 
 -report (any character): will open the file explorer prompting a path where to save an html report that will be automatically opened.
